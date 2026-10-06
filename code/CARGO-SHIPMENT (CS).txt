@@ -1,0 +1,19 @@
+DDM: CARGO-SHIPMENT (CS)
+  1   CS-AWB-NUMBER                     A       12   D
+  1   CS-SHIPPER-NAME                   A       60
+  1   CS-SHIPPER-ACCOUNT                A       12
+  1   CS-CONSIGNEE-NAME                 A       60
+  1   CS-ORIGIN                         A        3
+  1   CS-DESTINATION                    A        3
+  1   CS-FLIGHT-KEY                     A       20
+  1   CS-PIECES                         P        5
+  1   CS-GROSS-WEIGHT-KG                P        9,2
+  1   CS-CHARGEABLE-WEIGHT              P        9,2
+  1   CS-VOLUME-CBM                     P        7,2
+  1   CS-COMMODITY-CODE                 A        8
+  1   CS-SPECIAL-HANDLING               A       20
+  1   CS-FREIGHT-CHARGES                P       11,2
+  1   CS-CURRENCY                       A        3
+  1   CS-STATUS                         A        2
+  1   CS-CUSTOMS-CLEARED-FLAG           A        1
+  1   CS-INSURANCE-VALUE                P       11,2
