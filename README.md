@@ -7,4 +7,4 @@ I'll create a comprehensive Natural/Adabas codebase for an Airline Reservation &
 
 **System Overview**
 Domain: Commercial Airline Operations
-Modules: Reservations, Ticketing, Flight Scheduling, Crew Management, Cargo, Loyalty Program, Revenue Management, Maintenanc
+Modules: Reservations, Ticketing, Flight Scheduling, Crew Management, Cargo, Loyalty Program, Revenue Management, Maintenance
