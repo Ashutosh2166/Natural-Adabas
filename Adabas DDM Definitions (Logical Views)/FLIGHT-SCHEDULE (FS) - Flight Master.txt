@@ -1,0 +1,26 @@
+DDM: FLIGHT-SCHEDULE (FS)
+  1   FS-FLIGHT-KEY                     A       20   D  (Carrier+Num+Date)
+  1   FS-CARRIER-CODE                   A        3   D
+  1   FS-FLIGHT-NUMBER                  A        6   D
+  1   FS-DEPARTURE-DATE                 A       10   D
+  1   FS-ORIGIN-AIRPORT                 A        3   D
+  1   FS-DEST-AIRPORT                   A        3   D
+  1   FS-SCHEDULED-DEP-TIME             A        5
+  1   FS-SCHEDULED-ARR-TIME             A        5
+  1   FS-ACTUAL-DEP-TIME                A        5
+  1   FS-ACTUAL-ARR-TIME                A        5
+  1   FS-AIRCRAFT-TYPE                  A        6
+  1   FS-AIRCRAFT-REG                  A       12
+  1   FS-TOTAL-SEATS                    P        4
+  1   FS-SEATS-SOLD                     P        4
+  1   FS-SEATS-AVAILABLE                P        4
+  1   FS-CARGO-CAPACITY-KG              P       10
+  1   FS-CARGO-USED-KG                  P       10
+  1   FS-FLIGHT-STATUS                  A        2  (SC/BD/DL/DP/AR/CN)
+  1   FS-GATE-DEPARTURE                 A        5
+  1   FS-GATE-ARRIVAL                   A        5
+  1   FS-TERMINAL-DEP                   A        3
+  1   FS-TERMINAL-ARR                   A        3
+  1   FS-DISTANCE-KM                    P        8
+  1   FS-BLOCK-TIME-MIN                 P        5
+  1   FS-CREW-ASSIGNED-FLAG             A        1
