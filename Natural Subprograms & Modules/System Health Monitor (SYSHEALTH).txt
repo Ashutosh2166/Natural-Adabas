@@ -1,0 +1,53 @@
+* ============================================================
+* PROGRAM : SYSHEALTH
+* PURPOSE : Monitor ADABAS/Natural system health
+* ============================================================
+DEFINE DATA LOCAL
+1 #ADABAS-RC      (I2)
+1 #SUBRC          (I2)
+1 #BUFFER         (A64)
+1 #ASSO-SIZE      (P10)
+1 #ASSO-USED      (P10)
+1 #DATA-SIZE      (P10)
+1 #DATA-USED      (P10)
+1 #CMD-CNT        (P10)
+1 #UTIL-PCT       (P5,2)
+1 #CALL-OK        (L)
+END-DEFINE
+
+WRITE '=== SYSTEM HEALTH MONITOR ==='
+WRITE 'TIMESTAMP:' *TIMX
+
+* ADABAS call for system stats (L9 - get system info)
+CALL 'ADABAS' 'L9' ' ' 0 0 #BUFFER #ADABAS-RC #SUBRC
+IF #ADABAS-RC = 0
+  WRITE 'ADABAS OK'
+  * Parse buffer for free/used space
+  MOVE VAL(SUBSTRING(#BUFFER, 1, 10)) TO #ASSO-SIZE
+  MOVE VAL(SUBSTRING(#BUFFER, 11, 10)) TO #ASSO-USED
+  MOVE VAL(SUBSTRING(#BUFFER, 21, 10)) TO #DATA-SIZE
+  MOVE VAL(SUBSTRING(#BUFFER, 31, 10)) TO #DATA-USED
+ELSE
+  WRITE 'ADABAS CALL FAILED RC:' #ADABAS-RC
+END-IF
+
+IF #ASSO-SIZE > 0
+  COMPUTE #UTIL-PCT = #ASSO-USED / #ASSO-SIZE * 100
+  WRITE 'ASSOPOOL:' #ASSO-USED '/' #ASSO-SIZE
+        '(' #UTIL-PCT '% )'
+  IF #UTIL-PCT > 85
+    WRITE '*** WARNING: ASSOPOOL >85% FULL ***'
+  END-IF
+END-IF
+
+IF #DATA-SIZE > 0
+  COMPUTE #UTIL-PCT = #DATA-USED / #DATA-SIZE * 100
+  WRITE 'DATAPOOL:' #DATA-USED '/' #DATA-SIZE
+        '(' #UTIL-PCT '% )'
+END-IF
+
+WRITE 'COMMANDS PROCESSED:' *NC
+WRITE 'TERMINAL ID:' *INIT-ID
+WRITE 'USER ID:' *INIT-USER
+WRITE 'END OF HEALTH CHECK'
+END

@@ -1,0 +1,59 @@
+* ============================================================
+* SUBPROGRAM: CONNECT
+* PURPOSE   : Find valid connections between flights
+* ============================================================
+DEFINE DATA
+PARAMETER
+1 P-ORIGIN       (A3)
+1 P-DEST         (A3)
+1 P-DATE         (A10)
+1 P-MAX-LEGS     (I1)
+1 P-CONNECTIONS  (A20/1:20)
+1 P-CONN-COUNT   (I2)
+LOCAL
+1 FS VIEW OF FLIGHT-SCHEDULE
+1 FS2 VIEW OF FLIGHT-SCHEDULE
+1 #MIN-CONN-MIN  (P3) INIT <45>
+1 #MAX-CONN-MIN  (P4) INIT <360>
+1 #ARR-MIN       (I4)
+1 #DEP-MIN       (I4)
+1 #CONN-MIN      (I4)
+1 #HUB           (A3)
+END-DEFINE
+
+RESET P-CONN-COUNT
+
+IF P-MAX-LEGS = 1
+  * Direct flights only
+  FIND FLIGHT-SCHEDULE WITH FS-ORIGIN-AIRPORT = P-ORIGIN
+                     AND FS-DEST-AIRPORT    = P-DEST
+                     AND FS-DEPARTURE-DATE  = P-DATE
+    ADD 1 TO P-CONN-COUNT
+    MOVE FS-FLIGHT-KEY TO P-CONNECTIONS(P-CONN-COUNT)
+  END-FIND
+ELSE
+  * One-stop connections
+  FIND FLIGHT-SCHEDULE WITH FS-ORIGIN-AIRPORT = P-ORIGIN
+                     AND FS-DEPARTURE-DATE  = P-DATE
+    #HUB := FS-DEST-AIRPORT
+    COMPUTE #ARR-MIN = (VAL(FS-SCHEDULED-ARR-TIME) / 100 * 60)
+                     + (VAL(FS-SCHEDULED-ARR-TIME) MOD 100)
+
+    FIND FLIGHT-SCHEDULE WITH FS-ORIGIN-AIRPORT = #HUB
+                       AND FS-DEST-AIRPORT    = P-DEST
+                       AND FS-DEPARTURE-DATE  = P-DATE
+      COMPUTE #DEP-MIN = (VAL(FS2-SCHEDULED-DEP-TIME) / 100 * 60)
+                       + (VAL(FS2-SCHEDULED-DEP-TIME) MOD 100)
+      COMPUTE #CONN-MIN = #DEP-MIN - #ARR-MIN
+
+      IF #CONN-MIN >= #MIN-CONN-MIN AND #CONN-MIN <= #MAX-CONN-MIN
+        ADD 1 TO P-CONN-COUNT
+        IF P-CONN-COUNT <= 20
+          COMPRESS FS-FLIGHT-KEY '+' FS2-FLIGHT-KEY
+            INTO P-CONNECTIONS(P-CONN-COUNT)
+        END-IF
+      END-IF
+    END-FIND
+  END-FIND
+END-IF
+END

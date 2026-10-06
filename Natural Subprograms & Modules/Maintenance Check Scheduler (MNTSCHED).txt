@@ -1,0 +1,53 @@
+* ============================================================
+* PROGRAM : MNTSCHED
+* PURPOSE : Schedule aircraft maintenance checks (A/B/C/D)
+* ============================================================
+DEFINE DATA LOCAL
+1 #REG             (A12)
+1 #CYCLE-HRS       (P8)
+1 #CYCLE-LANDINGS  (P6)
+1 #LAST-A-CHECK    (A10)
+1 #LAST-C-CHECK    (A10)
+1 #DAYS-SINCE      (I4)
+1 #MNT-TYPE        (A1)
+1 #DUE-FLAG        (L)
+1 #ACTION-MSG      (A79)
+END-DEFINE
+
+INPUT 'AIRCRAFT REGISTRATION:' #REG
+
+CALLNAT 'ACFETCH' #REG #CYCLE-HRS #CYCLE-LANDINGS
+  #LAST-A-CHECK #LAST-C-CHECK
+
+CALLNAT 'DATDIFF' #LAST-A-CHECK *DATX #DAYS-SINCE
+
+* A-Check: every 500 flight hours or 60 days
+IF #CYCLE-HRS >= 500 OR #DAYS-SINCE >= 60
+  MOVE 'A' TO #MNT-TYPE
+  MOVE TRUE TO #DUE-FLAG
+END-IF
+
+* C-Check: every 4000 flight hours or 18 months
+CALLNAT 'DATDIFF' #LAST-C-CHECK *DATX #DAYS-SINCE
+IF #CYCLE-HRS >= 4000 OR #DAYS-SINCE >= 540
+  MOVE 'C' TO #MNT-TYPE
+  MOVE TRUE TO #DUE-FLAG
+END-IF
+
+* D-Check: every 24000 flight hours or 6 years
+IF #CYCLE-HRS >= 24000 OR #DAYS-SINCE >= 2190
+  MOVE 'D' TO #MNT-TYPE
+  MOVE TRUE TO #DUE-FLAG
+END-IF
+
+IF #DUE-FLAG = TRUE
+  MOVE 'MAINTENANCE CHECK DUE' TO #ACTION-MSG
+  WRITE 'AIRCRAFT:' #REG
+        'CHECK TYPE:' #MNT-TYPE
+        'FLIGHT HRS:' #CYCLE-HRS
+        'LANDINGS:' #CYCLE-LANDINGS
+  CALLNAT 'MNTORDCR' #REG #MNT-TYPE
+ELSE
+  WRITE 'NO MAINTENANCE DUE FOR' #REG
+END-IF
+END

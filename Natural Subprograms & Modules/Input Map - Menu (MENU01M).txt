@@ -1,0 +1,24 @@
+* ============================================================
+* MAP     : MENU01M
+* PURPOSE : Main menu input screen
+* ============================================================
+MAP MENU01M
+FORMAT PS=24 LS=80
+  INPUT (AD=Z)
+  /    ...
+  '     ╔══════════════════════════════════════════════════╗'
+  '     ║     AIRLINE RESERVATION & OPERATIONS SYSTEM      ║'
+  '     ║              AROS v3.2 - MAIN MENU               ║'
+  '     ╠══════════════════════════════════════════════════╣'
+  '     ║  01 - Reservation Management                     ║'
+  '     ║  02 - Flight Scheduling                          ║'
+  '     ║  03 - Crew Management                            ║'
+  '     ║  04 - Cargo Operations                           ║'
+  '     ║  05 - Revenue Management                         ║'
+  '     ║  06 - Aircraft Maintenance                       ║'
+  '     ║  07 - Loyalty Program                            ║'
+  '     ║  08 - Reporting & Analytics                      ║'
+  '     ║  99 - Exit                                       ║'
+  '     ╚══════════════════════════════════════════════════╝'
+  /    '     ENTER SELECTION: ' #SELECTION
+END-MAP

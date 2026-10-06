@@ -1,0 +1,46 @@
+* ============================================================
+* PROGRAM : FLTACCT
+* PURPOSE : Post flight revenue to GL (accounting interface)
+* ============================================================
+DEFINE DATA LOCAL
+1 FS VIEW OF FLIGHT-SCHEDULE
+1 #FLIGHT-KEY      (A20)
+1 #GL-ENTRY        (A100)
+1 #DEBIT-ACCT      (A10)  /* 4100 - Passenger Revenue
+1 #CREDIT-ACCT     (A10)  /* 2100 - Deferred Revenue
+1 #TAX-ACCT        (A10)  /* 2200 - Tax Payable
+1 #AMOUNT          (P12,2)
+1 #TAX-AMOUNT      (P12,2)
+1 #NET-AMOUNT      (P12,2)
+1 #POSTED          (P6)
+END-DEFINE
+
+INPUT 'FLIGHT KEY TO POST:' #FLIGHT-KEY
+
+FIND FLIGHT-SCHEDULE WITH FS-FLIGHT-KEY = #FLIGHT-KEY
+  IF FS-FLIGHT-STATUS <> 'AR'
+    WRITE 'FLIGHT NOT YET ARRIVED - CANNOT POST'
+    ESCAPE ROUTINE
+  END-IF
+END-FIND
+
+* Compute revenue
+CALLNAT 'FLCNTBOOK' #FLIGHT-KEY #AMOUNT
+COMPUTE #TAX-AMOUNT = #AMOUNT * 0.12
+COMPUTE #NET-AMOUNT = #AMOUNT - #TAX-AMOUNT
+
+* Post revenue recognition entry
+COMPRESS 'DR|4100|' #NET-AMOUNT '|' #FLIGHT-KEY INTO #GL-ENTRY
+CALLNAT 'GLPOST' #GL-ENTRY
+
+COMPRESS 'CR|2100|' #NET-AMOUNT '|' #FLIGHT-KEY INTO #GL-ENTRY
+CALLNAT 'GLPOST' #GL-ENTRY
+
+COMPRESS 'CR|2200|' #TAX-AMOUNT '|' #FLIGHT-KEY INTO #GL-ENTRY
+CALLNAT 'GLPOST' #GL-ENTRY
+
+ADD 3 TO #POSTED
+
+WRITE 'GL POSTINGS COMPLETE:' #POSTED
+      'TOTAL:' #AMOUNT 'TAX:' #TAX-AMOUNT
+END
