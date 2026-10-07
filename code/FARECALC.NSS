@@ -1,0 +1,61 @@
+* ============================================================
+* SUBPROGRAM: FARECALC
+* PURPOSE   : Compute fare for a segment
+* ============================================================
+DEFINE DATA
+PARAMETER
+1 P-SEGMENT
+  2 P-SEG-FLIGHT-KEY  (A20)
+  2 P-SEG-CLASS       (A1)
+  2 P-SEG-DATE        (A10)
+1 P-PAX-ID            (A12)
+1 P-FARE-AMOUNT       (P9,2)
+LOCAL
+1 FT VIEW OF FARE-TARIFF
+1 #ORIGIN   (A3)
+1 #DEST     (A3)
+1 #CARRIER  (A3)
+1 #BASIS    (A8)
+1 #FOUND    (L)
+1 #DISCOUNT (P3)
+1 PA VIEW OF PASSENGER
+END-DEFINE
+
+RESET #FOUND P-FARE-AMOUNT
+
+* Parse flight key: CARR|NUM|DATE
+SEPARATE P-SEG-FLIGHT-KEY INTO #CARRIER 3 #FLIGHT-NO 6 P-SEG-DATE
+
+* Get route from flight schedule
+FIND FLIGHT-SCHEDULE WITH FS-FLIGHT-KEY = P-SEG-FLIGHT-KEY
+  #ORIGIN := FS-ORIGIN-AIRPORT
+  #DEST   := FS-DEST-AIRPORT
+END-FIND
+
+* Match fare tariff using descriptor
+FIND FARE-TARIFF WITH FT-CARRIER     = #CARRIER
+                AND FT-ORIGIN        = #ORIGIN
+                AND FT-DESTINATION   = #DEST
+                AND FT-CABIN-CLASS   = P-SEG-CLASS
+  IF FT-EFFECTIVE-DATE <= P-SEG-DATE
+    AND FT-EXPIRY-DATE  >= P-SEG-DATE
+    P-FARE-AMOUNT := FT-BASE-AMOUNT
+    MOVE TRUE TO #FOUND
+    ESCAPE BOTTOM
+  END-IF
+END-FIND
+
+IF #FOUND = FALSE
+  MOVE 0 TO P-FARE-AMOUNT
+  ESCAPE ROUTINE
+END-IF
+
+* Apply loyalty discount
+GET PASSENGER P-PAX-ID
+IF PA-LOYALTY-TIER = 'PL' OR = 'DI'
+  COMPUTE P-FARE-AMOUNT = P-FARE-AMOUNT * 0.90
+ELSE IF PA-LOYALTY-TIER = 'GL'
+  COMPUTE P-FARE-AMOUNT = P-FARE-AMOUNT * 0.95
+END-IF
+
+END

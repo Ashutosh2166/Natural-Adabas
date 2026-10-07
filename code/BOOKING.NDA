@@ -1,0 +1,31 @@
+DDM: BOOKING (BK)
+  1   BK-PNR-LOCATOR                    A        8   D  Unique
+  1   BK-BOOKING-DATE                   A       10   D
+  1   BK-BOOKING-STATUS                 A        2  (HK/HL/UC/NO/TK)
+  1   BK-CHANNEL                        A        3  (WEB/APP/GDS/CTO)
+  1   BK-AGENT-ID                       A       10
+  1   BK-PASSENGER-ID                   A       12   D
+  1   BK-CONTACT-EMAIL                  A       60
+  1   BK-CONTACT-PHONE                  A       20
+  1   BK-TOTAL-AMOUNT                   P       12,2
+  1   BK-CURRENCY                       A        3
+  1   BK-PAYMENT-METHOD                 A        4
+  1   BK-TICKET-NUMBER                  A       14
+  1   BK-FARE-BASIS                     A        8
+  1   BK-ITINERARY-SEGMENTS (1:8)
+    2  BK-SEG-FLIGHT-KEY               A       20
+    2  BK-SEG-CABIN-CLASS              A        1
+    2  BK-SEG-BOOKING-CLASS            A        2
+    2  BK-SEG-SEAT-NUMBER              A        4
+    2  BK-SEG-STATUS                   A        2
+    2  BK-SEG-FARE                     P        9,2
+    2  BK-SEG-TAX                      P        9,2
+    2  BK-SEG-BAGGAGE-ALLOW-KG         P        4
+    2  BK-SEG-MEAL-CODE                A        4
+  1   BK-SPECIAL-SERVICES (1:5)
+    2  BK-SSR-CODE                     A        4
+    2  BK-SSR-DESCRIPTION              A       40
+  1   BK-FREQUENT-FLYER-NO              A       15
+  1   BK-CORP-ACCOUNT                   A       12
+  1   BK-CREATED-TS                      A       26
+  1   BK-MODIFIED-TS                     A       26

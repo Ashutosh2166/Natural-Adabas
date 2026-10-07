@@ -1,0 +1,37 @@
+* ============================================================
+* PROGRAM : DEDUP
+* PURPOSE : Find potential duplicate passenger records
+* ============================================================
+DEFINE DATA LOCAL
+1 PA VIEW OF PASSENGER
+1 #LAST-NAME-KEY  (A40)
+1 #DOB-KEY        (A10)
+1 #DUP-COUNT      (P6)
+1 #SCAN-COUNT     (P8)
+1 PA2 VIEW OF PASSENGER
+END-DEFINE
+
+WRITE '=== PASSENGER DEDUPLICATION SCAN ==='
+
+FIND PASSENGER SORTED BY PA-LAST-NAME
+  ADD 1 TO #SCAN-COUNT
+  MOVE PA-LAST-NAME TO #LAST-NAME-KEY
+  MOVE PA-DATE-OF-BIRTH TO #DOB-KEY
+
+  * Look for same name + DOB
+  FIND PASSENGER WITH PA-LAST-NAME = #LAST-NAME-KEY
+                  AND PA-DATE-OF-BIRTH = #DOB-KEY
+    IF PA-PASSENGER-ID <> PA2-PASSENGER-ID
+      ADD 1 TO #DUP-COUNT
+      WRITE 'POTENTIAL DUP:'
+            PA-PASSENGER-ID PA-FIRST-NAME PA-LAST-NAME
+            ' == '
+            PA2-PASSENGER-ID PA2-FIRST-NAME PA2-LAST-NAME
+    END-IF
+  END-FIND
+END-FIND
+
+WRITE 'SCAN COMPLETE'
+      'PASSENGERS SCANNED:' #SCAN-COUNT
+      'POTENTIAL DUPLICATES:' #DUP-COUNT
+END

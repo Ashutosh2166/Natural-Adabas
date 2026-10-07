@@ -1,0 +1,68 @@
+* ============================================================
+* PROGRAM : SSIMLOAD
+* PURPOSE : Load IATA SSIM/ASM schedule files
+* ============================================================
+DEFINE DATA LOCAL
+1 #SSIM-FILE      (A60)
+1 #RECORD         (A200)
+1 #REC-TYPE       (I1)
+1 #CARRIER        (A3)
+1 #FLIGHT-NO      (A6)
+1 #ORIGIN         (A3)
+1 #DEST           (A3)
+1 #DEP-TIME       (A5)
+1 #ARR-TIME       (A5)
+1 #AC-TYPE        (A6)
+1 #EFF-FROM       (A10)
+1 #EFF-TO         (A10)
+1 #DOW            (A7)
+1 #COUNT          (P8)
+1 #START-DATE     (A10)
+1 #END-DATE       (A10)
+END-DEFINE
+
+INPUT 'SSIM FILE PATH:' #SSIM-FILE
+
+DEFINE WORK FILE 5 #SSIM-FILE
+DEFINE DATA LOCAL
+1 #OPEN-OK (L)
+END-DEFINE
+
+READ WORK FILE 5 #RECORD
+  ADD 1 TO #COUNT
+  MOVE SUBSTRING(#RECORD, 1, 1) TO #REC-TYPE
+
+  DECIDE ON FIRST VALUE OF #REC-TYPE
+    * Header record (type 1)
+    VALUE 1
+      MOVE SUBSTRING(#RECORD, 11, 10) TO #START-DATE
+      MOVE SUBSTRING(#RECORD, 21, 10) TO #END-DATE
+      WRITE 'HEADER: FROM' #START-DATE 'TO' #END-DATE
+
+    * Flight leg record (type 3)
+    VALUE 3
+      MOVE SUBSTRING(#RECORD, 2, 3)  TO #CARRIER
+      MOVE SUBSTRING(#RECORD, 5, 6)  TO #FLIGHT-NO
+      MOVE SUBSTRING(#RECORD, 20, 3) TO #ORIGIN
+      MOVE SUBSTRING(#RECORD, 23, 3) TO #DEST
+      MOVE SUBSTRING(#RECORD, 40, 5) TO #DEP-TIME
+      MOVE SUBSTRING(#RECORD, 45, 5) TO #ARR-TIME
+      MOVE SUBSTRING(#RECORD, 59, 6) TO #AC-TYPE
+      MOVE SUBSTRING(#RECORD, 66, 7) TO #DOW
+
+      CALLNAT 'SSIMSAVE' #CARRIER #FLIGHT-NO #ORIGIN
+        #DEST #DEP-TIME #ARR-TIME #AC-TYPE
+        #EFF-FROM #EFF-TO #DOW
+
+    * Trailer record
+    VALUE 5
+      WRITE 'TRAILER RECORD - FILE END'
+
+    NONE
+      /* ignore other record types
+  END-DECIDE
+END WORK FILE 5
+CLOSE WORK FILE 5
+
+WRITE 'SSIM FILE LOADED:' #COUNT 'RECORDS'
+END
